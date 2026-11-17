@@ -19,6 +19,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-app
 main{max-width:640px;margin:0 auto;padding:20px 16px 40px}
 h1{font-size:1.4rem;margin:0 0 4px}
 p.sub{margin:0 0 20px;color:var(--mute)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
 label{display:block;font-weight:600;margin:0 0 4px}
 .f{margin-bottom:14px}
@@ -30,12 +31,25 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--acc);outli
 .hint{font-size:.85rem;color:var(--mute);margin-top:4px}
 button{width:100%;padding:13px;font:inherit;font-weight:600;border:0;border-radius:8px;background:var(--acc);color:var(--acc-ink);cursor:pointer}
 button:disabled{opacity:.5;cursor:default}
+.tema{width:auto;padding:6px 12px;font-size:.8rem;font-weight:500;background:transparent;color:var(--ink);border:1px solid var(--line);white-space:nowrap}
+.sec{background:transparent;color:var(--ink);border:1px solid var(--line);padding:9px;font-size:.9rem}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
 .err{color:var(--err);font-weight:600;margin-top:10px}
 .pv{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
 #qr{width:140px;height:140px;background:#fff;padding:8px;border-radius:8px;border:1px solid var(--line)}
 #qr svg{width:100%;height:100%;display:block}
 .txt{flex:1;min-width:180px;overflow-wrap:anywhere;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9rem}
 .txt b{font-family:system-ui,sans-serif}
+.cek{margin-top:12px;font-size:.88rem;overflow-wrap:anywhere}
+.cek.warn{color:var(--err)}
+details{margin-top:14px}
+summary{cursor:pointer;font-weight:600}
+.lst{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem}
+.lst div{display:flex;align-items:center;gap:8px;padding:4px 10px;border-bottom:1px solid var(--line)}
+.lst div:last-child{border-bottom:0}
+.lst .n{color:var(--mute);min-width:3.2em}
+.lst .v{flex:1;overflow-wrap:anywhere}
+.x{width:auto;padding:0 10px;line-height:1.6;font-weight:400;background:transparent;color:var(--err);border:1px solid var(--line)}
 .credit{margin-top:28px;text-align:center;font-size:.75rem;color:var(--mute)}
 .bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:10px;display:none}
 .bar i{display:block;height:100%;width:0;background:var(--acc)}
@@ -43,19 +57,41 @@ button:disabled{opacity:.5;cursor:default}
 </head>
 <body>
 <main>
-<h1>QR ANJAY GAMPANG</h1>
-<p class="sub">Isi QR = Kode Awal + Nomor Seri + Kode Akhir, tanpa spasi. Satu QR per halaman PDF.</p>
+<div class="top">
+  <div>
+    <h1>QR ANJAY GAMPANG</h1>
+    <p class="sub">Isi QR = Kode Awal + Nomor Seri + Kode Akhir, tanpa spasi. Satu QR per halaman PDF.</p>
+  </div>
+  <button id="tema" class="tema" type="button" aria-label="Ganti tema"></button>
+</div>
 
 <div class="card">
   <div class="f"><label for="awal">Kode awal</label>
     <input id="awal" value="S241x" autocomplete="off" autocapitalize="off"></div>
-  <div class="row">
-    <div class="f"><label for="dari">No seri dari</label>
-      <input id="dari" value="0150000064844670" inputmode="numeric" autocomplete="off"></div>
-    <div class="f"><label for="sampai">No seri sampai</label>
-      <input id="sampai" value="0150000064844699" inputmode="numeric" autocomplete="off"></div>
+
+  <div class="f"><label for="mode">Sumber nomor seri</label>
+    <select id="mode">
+      <option value="range">Rentang nomor (dari – sampai)</option>
+      <option value="file">Upload file SN (Excel / PDF)</option>
+    </select></div>
+
+  <div id="modeRange">
+    <div class="row">
+      <div class="f"><label for="dari">No seri dari</label>
+        <input id="dari" value="0150000064844670" inputmode="numeric" autocomplete="off"></div>
+      <div class="f"><label for="sampai">No seri sampai</label>
+        <input id="sampai" value="0150000064844699" inputmode="numeric" autocomplete="off"></div>
+    </div>
+    <div class="hint" style="margin:-6px 0 14px">Angka nol di depan tetap dipertahankan sesuai panjang "No seri dari".</div>
   </div>
-  <div class="hint" style="margin:-6px 0 14px">Angka nol di depan tetap dipertahankan sesuai panjang "No seri dari".</div>
+
+  <div id="modeFile" hidden>
+    <div class="f"><label for="fileSn">File SN</label>
+      <input id="fileSn" type="file" accept=".xlsx,.xls,.csv,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" style="font-family:inherit">
+      <div class="hint">Excel (.xlsx, .xls, .csv) atau PDF berisi teks. Semua nomor seri di file dibaca otomatis, lalu tiap SN digabung: Kode awal + SN + Kode akhir.</div>
+      <div id="fileInfo" class="hint" aria-live="polite" style="margin-top:8px"></div></div>
+  </div>
+
   <div class="f"><label for="akhir">Kode akhir</label>
     <input id="akhir" value="0000082116082863" autocomplete="off"></div>
   <div class="row">
@@ -74,11 +110,21 @@ button:disabled{opacity:.5;cursor:default}
         <option value="H">Sangat tinggi (H)</option>
       </select></div>
   </div>
+  <div class="row">
+    <div class="f"><label for="perFile">Maks QR per file PDF</label>
+      <input id="perFile" value="500" inputmode="numeric" autocomplete="off">
+      <div class="hint">Jika lebih banyak, PDF dipecah otomatis (maks 5000).</div></div>
+    <div class="f"><label for="zipMode">Jika lebih dari 1 file</label>
+      <select id="zipMode">
+        <option value="zip">Satu file ZIP</option>
+        <option value="sep">Unduh satu per satu</option>
+      </select></div>
+  </div>
   <div class="f" style="margin-bottom:0"><label style="display:flex;gap:8px;align-items:center;font-weight:400">
     <input type="checkbox" id="tampilTeks" checked style="width:auto"> Cetak teks kode di bawah QR</label></div>
-  <div class="f" style="margin-top:14px"><label for="namaFile">Nama file PDF (opsional)</label>
+  <div class="f" style="margin-top:14px"><label for="namaFile">Nama file (opsional)</label>
     <input id="namaFile" placeholder="contoh: QR-Voucher-Nov" autocomplete="off" maxlength="100" style="font-family:inherit">
-    <div class="hint">Kosongkan untuk nama otomatis. Ekstensi .pdf ditambahkan otomatis.</div></div>
+    <div class="hint">Kosongkan untuk nama otomatis. Ekstensi ditambahkan otomatis. Pengaturan (kode awal/akhir, ukuran, dll.) tersimpan di perangkat ini.</div></div>
   <div id="error" class="err" role="alert" hidden></div>
 </div>
 
@@ -86,11 +132,22 @@ button:disabled{opacity:.5;cursor:default}
   <div class="pv">
     <div id="qr" aria-label="Pratinjau QR pertama"></div>
     <div class="txt">
-      <div><b>Jumlah QR:</b> <span id="jumlah"></span> halaman</div>
+      <div><b>Jumlah QR:</b> <span id="jumlah"></span> halaman<span id="bagian"></span></div>
       <div style="margin-top:6px"><b>Pertama:</b><br><span id="pertama"></span></div>
       <div style="margin-top:6px"><b>Terakhir:</b><br><span id="terakhir"></span></div>
     </div>
   </div>
+  <div id="cek" class="cek" hidden></div>
+  <div class="acts">
+    <button type="button" class="sec" id="salin">Salin daftar</button>
+    <button type="button" class="sec" id="xlsx">Unduh Excel</button>
+    <button type="button" class="sec" id="csv">Unduh CSV</button>
+  </div>
+  <details>
+    <summary id="lstJudul">Daftar SN</summary>
+    <div id="lst" class="lst"></div>
+    <div id="lstNote" class="hint"></div>
+  </details>
 </div>
 
 <button id="btn">Buat &amp; simpan PDF</button>
@@ -103,27 +160,165 @@ button:disabled{opacity:.5;cursor:default}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 (function(){
-var MAX = 5000;
+var MAX = 20000;
 var $ = function(id){return document.getElementById(id)};
 var SIZES = {a4:[210,297], a5:[148,210], a6:[105,148], label:[60,70]};
+var fileSN = [], fileBusy = false, dupCount = 0, dupEx = [];
+var XLSX_URL = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+var PDFJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+var PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+var JSZIP_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
 
+/* ---------- penyimpanan pengaturan & tema ---------- */
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(_){} }
+var SAVED = ['awal','akhir','ukuran','ecc','perFile','zipMode'];
+function loadSettings(){
+  SAVED.forEach(function(id){ var v = lsGet('qag_'+id); if(v !== null) $(id).value = v; });
+  var t = lsGet('qag_tampilTeks'); if(t !== null) $('tampilTeks').checked = (t === '1');
+}
+function saveSettings(){
+  SAVED.forEach(function(id){ lsSet('qag_'+id, $(id).value); });
+  lsSet('qag_tampilTeks', $('tampilTeks').checked ? '1' : '0');
+}
+var TEMA = ['auto','light','dark'];
+var TLABEL = {auto:'Tema: Otomatis', light:'Tema: Terang', dark:'Tema: Gelap'};
+var temaNow = 'auto';
+function setTema(t){
+  if(TEMA.indexOf(t) < 0) t = 'auto';
+  temaNow = t;
+  if(t === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', t);
+  $('tema').textContent = TLABEL[t];
+  lsSet('qag_tema', t);
+}
+$('tema').addEventListener('click', function(){
+  setTema(TEMA[(TEMA.indexOf(temaNow) + 1) % TEMA.length]);
+});
+setTema(lsGet('qag_tema') || 'auto');
+loadSettings();
+
+/* ---------- util ---------- */
+function loadScript(src){
+  return new Promise(function(res, rej){
+    var s = document.createElement('script');
+    s.src = src; s.onload = res;
+    s.onerror = function(){ rej(new Error('Gagal memuat pustaka. Periksa koneksi internet.')); };
+    document.head.appendChild(s);
+  });
+}
+function tick(){ return new Promise(function(r){setTimeout(r,0)}); }
+function padNum(n, w){ var s = n.toString(); while(s.length < w) s = '0' + s; return s; }
+function safeName(s){ return String(s).replace(/\.(pdf|zip|xlsx|csv)$/i,'').replace(/[\\\/:*?"<>|\x00-\x1f]/g,'-').replace(/\s+/g,' ').trim(); }
+function perFile(){ var v = parseInt($('perFile').value, 10); if(!(v >= 1)) v = 500; return Math.min(v, 5000); }
+
+function dlAnchor(blob, name){
+  var u = URL.createObjectURL(blob), el = document.createElement('a');
+  el.href = u; el.download = name; document.body.appendChild(el); el.click(); el.remove();
+  setTimeout(function(){ URL.revokeObjectURL(u); }, 4000);
+}
+async function saveBlob(blob, name){
+  var dl = null;
+  try{ dl = (window.claude && claude.use) ? await claude.use('downloads') : null; }catch(_){ dl = null; }
+  if(dl) await dl.save({filename:name, data:blob});
+  else dlAnchor(blob, name);
+}
+
+/* ---------- baca file SN (Excel / PDF) ---------- */
+function tokens(text, st){
+  var t = String(text == null ? '' : text).trim();
+  if(!t) return [];
+  if(/^\d(\.\d+)?e\+\d+$/i.test(t)){ st.sci++; return []; }
+  var m = t.replace(/[\s-]/g, '').match(/\d{8,}/g);
+  return m || [];
+}
+async function readExcel(buf, st){
+  if(!window.XLSX) await loadScript(XLSX_URL);
+  var wb = XLSX.read(buf, {type:'array', cellDates:false});
+  var out = [];
+  wb.SheetNames.forEach(function(nm){
+    var rows = XLSX.utils.sheet_to_json(wb.Sheets[nm], {header:1, raw:false, defval:''});
+    rows.forEach(function(r){ r.forEach(function(c){ out.push.apply(out, tokens(c, st)); }); });
+  });
+  return out;
+}
+async function readPdf(buf, st){
+  if(!window.pdfjsLib) await loadScript(PDFJS_URL);
+  var worker = PDFJS_WORKER;
+  try{
+    var r = await fetch(PDFJS_WORKER);
+    if(r.ok) worker = URL.createObjectURL(new Blob([await r.text()], {type:'text/javascript'}));
+  }catch(_){}
+  pdfjsLib.GlobalWorkerOptions.workerSrc = worker;
+  var pdf = await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+  var out = [];
+  for(var p = 1; p <= pdf.numPages; p++){
+    $('fileInfo').textContent = 'Membaca halaman PDF ' + p + ' dari ' + pdf.numPages + '…';
+    var page = await pdf.getPage(p), tc = await page.getTextContent();
+    tc.items.forEach(function(it){ out.push.apply(out, tokens(it.str, st)); });
+    if(p % 10 === 0) await tick();
+  }
+  return out;
+}
+async function loadFile(file){
+  var info = $('fileInfo');
+  fileSN = []; dupCount = 0; dupEx = []; fileBusy = true;
+  if(!file){ fileBusy = false; info.textContent = ''; preview(); return; }
+  info.textContent = 'Membaca ' + file.name + '…';
+  var st = {sci:0};
+  try{
+    var buf = await file.arrayBuffer();
+    var isPdf = /\.pdf$/i.test(file.name) || file.type === 'application/pdf';
+    var all = isPdf ? await readPdf(buf, st) : await readExcel(buf, st);
+    if(!all.length){
+      var msg = isPdf ? 'Tidak ada nomor seri terbaca. Jika PDF berupa hasil scan/gambar, belum bisa dibaca; gunakan PDF berisi teks atau Excel.' : 'Tidak ada nomor seri (angka minimal 8 digit) di file ini.';
+      if(st.sci) msg += ' ' + st.sci + ' sel tampil sebagai notasi ilmiah (mis. 1.5E+15); ubah kolom SN ke format Teks di Excel.';
+      info.textContent = msg; fileBusy = false; preview(); return;
+    }
+    var cnt = {}, best = 0, bestN = 0;
+    all.forEach(function(x){ cnt[x.length] = (cnt[x.length]||0) + 1; });
+    Object.keys(cnt).forEach(function(k){
+      if(cnt[k] > bestN || (cnt[k] === bestN && +k > best)){ best = +k; bestN = cnt[k]; }
+    });
+    var seen = {}, uniq = [];
+    all.forEach(function(x){
+      if(x.length !== best) return;
+      if(seen[x]){ dupCount++; if(dupEx.length < 3 && dupEx.indexOf(x) < 0) dupEx.push(x); return; }
+      seen[x] = 1; uniq.push(x);
+    });
+    fileSN = uniq;
+    var other = all.length - bestN;
+    info.textContent = 'Terbaca ' + uniq.length + ' SN (' + best + ' digit)' +
+      (other ? ', ' + other + ' angka dengan panjang lain diabaikan' : '') + '.' +
+      (st.sci ? ' Peringatan: ' + st.sci + ' sel berformat notasi ilmiah dilewati.' : '');
+  }catch(err){
+    info.textContent = 'Gagal membaca file: ' + (err && err.message || err);
+  }
+  fileBusy = false;
+  preview();
+}
+
+/* ---------- bangun daftar ---------- */
 function build(){
   var awal = $('awal').value.trim(), akhir = $('akhir').value.trim();
-  var d = $('dari').value.trim(), s = $('sampai').value.trim();
   if(!awal) return {err:'Kode awal wajib diisi.'};
   if(!akhir) return {err:'Kode akhir wajib diisi.'};
-  if(!/^\d+$/.test(d) || !/^\d+$/.test(s)) return {err:'No seri dari dan sampai harus berupa angka.'};
-  var a = BigInt(d), b = BigInt(s);
-  if(b < a) return {err:'No seri sampai harus lebih besar atau sama dengan No seri dari.'};
-  var n = b - a + 1n;
-  if(n > BigInt(MAX)) return {err:'Maksimal ' + MAX + ' QR per file. Pecah rentang nomor seri menjadi beberapa file.'};
-  var w = d.length, list = [];
-  for(var i = a; i <= b; i++){
-    var num = i.toString();
-    while(num.length < w) num = '0' + num;
-    list.push(awal + num + akhir);
+  var sns = [];
+  if($('mode').value === 'file'){
+    if(fileBusy) return {err:'Sedang membaca file…'};
+    if(!fileSN.length) return {err:'Upload file SN (Excel atau PDF) yang berisi nomor seri.'};
+    if(fileSN.length > MAX) return {err:'Maksimal ' + MAX + ' QR sekaligus, file berisi ' + fileSN.length + ' SN. Pecah file menjadi beberapa bagian.'};
+    sns = fileSN.slice();
+  }else{
+    var d = $('dari').value.trim(), s = $('sampai').value.trim();
+    if(!/^\d+$/.test(d) || !/^\d+$/.test(s)) return {err:'No seri dari dan sampai harus berupa angka.'};
+    var a = BigInt(d), b = BigInt(s);
+    if(b < a) return {err:'No seri sampai harus lebih besar atau sama dengan No seri dari.'};
+    if(b - a + 1n > BigInt(MAX)) return {err:'Maksimal ' + MAX + ' QR sekaligus. Perkecil rentang nomor seri.'};
+    var w = d.length;
+    for(var i = a; i <= b; i++) sns.push(padNum(i, w));
   }
-  return {list:list};
+  return {sns:sns, list:sns.map(function(sn){ return awal + sn + akhir; })};
 }
 
 function makeQR(text){
@@ -132,27 +327,92 @@ function makeQR(text){
   return q;
 }
 
+/* ---------- cek duplikat & SN lompat ---------- */
+function analyze(sns){
+  var cek = $('cek'), out = [], warn = false;
+  if(dupCount){
+    out.push(dupCount + ' duplikat dibuang' + (dupEx.length ? ' (mis. ' + dupEx.join(', ') + ')' : '') + '.');
+    warn = true;
+  }
+  var w = sns[0].length;
+  var nums = sns.map(function(s){ return BigInt(s); }).sort(function(x, y){ return x < y ? -1 : x > y ? 1 : 0; });
+  var miss = 0n, ranges = [], big = 0;
+  for(var i = 1; i < nums.length; i++){
+    var gap = nums[i] - nums[i-1] - 1n;
+    if(gap <= 0n) continue;
+    if(gap > 1000n){ big++; continue; }
+    miss += gap;
+    var from = padNum(nums[i-1] + 1n, w);
+    ranges.push(gap === 1n ? from : from + ' – ' + padNum(nums[i] - 1n, w));
+  }
+  if(!ranges.length && !big){
+    out.push('Urutan lengkap, tidak ada nomor yang lompat.');
+  }else{
+    if(ranges.length){
+      out.push(miss + ' nomor lompat di ' + ranges.length + ' tempat: ' + ranges.slice(0, 4).join(', ') + (ranges.length > 4 ? ' …' : '') + '.');
+      warn = true;
+    }
+    if(big) out.push(big + ' celah besar (lebih dari 1000 nomor) dianggap blok SN terpisah.');
+  }
+  cek.textContent = out.join(' ');
+  cek.className = 'cek' + (warn ? ' warn' : '');
+  cek.hidden = false;
+}
+
+/* ---------- daftar SN ---------- */
+function renderList(sns, edit){
+  var N = Math.min(sns.length, 300), h = [];
+  for(var i = 0; i < N; i++){
+    h.push('<div><span class="n">' + (i+1) + '</span><span class="v">' + sns[i] + '</span>' +
+      (edit ? '<button type="button" class="x" data-i="' + i + '" aria-label="Hapus ' + sns[i] + '">×</button>' : '') + '</div>');
+  }
+  $('lst').innerHTML = h.join('');
+  $('lstJudul').textContent = 'Daftar SN (' + sns.length + ')';
+  $('lstNote').textContent = sns.length > N
+    ? 'Menampilkan ' + N + ' pertama; Salin dan Unduh tetap memuat semua.'
+    : (edit ? 'Tekan × untuk menghapus SN dari daftar.' : '');
+}
+$('lst').addEventListener('click', function(e){
+  var b = e.target.closest ? e.target.closest('button[data-i]') : null;
+  if(!b) return;
+  fileSN.splice(+b.getAttribute('data-i'), 1);
+  preview();
+});
+
 function preview(){
   var r = build(), e = $('error');
   if(r.err){ e.textContent = r.err; e.hidden = false; $('pvCard').hidden = true; return null; }
   e.hidden = true;
-  var L = r.list;
+  var L = r.list, pf = perFile(), parts = Math.ceil(L.length / pf);
   $('jumlah').textContent = L.length;
+  $('bagian').textContent = parts > 1 ? ' → dipecah jadi ' + parts + ' file PDF' : '';
   $('pertama').textContent = L[0];
   $('terakhir').textContent = L[L.length-1];
   $('qr').innerHTML = makeQR(L[0]).createSvgTag({cellSize:4, margin:0, scalable:true});
+  var isFile = $('mode').value === 'file';
+  if(isFile) analyze(r.sns); else $('cek').hidden = true;
+  renderList(r.sns, isFile);
   $('pvCard').hidden = false;
-  return L;
+  return r;
 }
 
-['awal','dari','sampai','akhir','ecc'].forEach(function(id){
+['awal','dari','sampai','akhir','ecc','perFile'].forEach(function(id){
   $(id).addEventListener('input', preview);
 });
+SAVED.concat(['tampilTeks']).forEach(function(id){
+  $(id).addEventListener('input', saveSettings);
+  $(id).addEventListener('change', saveSettings);
+});
+$('mode').addEventListener('change', function(){
+  var f = this.value === 'file';
+  $('modeRange').hidden = f; $('modeFile').hidden = !f;
+  preview();
+});
+$('fileSn').addEventListener('change', function(){ loadFile(this.files[0]); });
 preview();
 
-function tick(){ return new Promise(function(r){setTimeout(r,0)}); }
-
-async function makePdf(list){
+/* ---------- PDF ---------- */
+async function makePdf(list, base, total){
   var key = $('ukuran').value, sz = SIZES[key];
   var doc = new jspdf.jsPDF({unit:'mm', format:sz, orientation:'portrait'});
   var W = sz[0], H = sz[1], withText = $('tampilTeks').checked;
@@ -178,46 +438,122 @@ async function makePdf(list){
       doc.text(list[i], W/2, y0 + qrSize + qrSize*0.09, {align:'center'});
     }
     if(i % 25 === 0){
-      var p = Math.round((i+1)/list.length*100);
-      $('fill').style.width = p + '%';
-      $('status').textContent = 'Membuat halaman ' + (i+1) + ' dari ' + list.length + '…';
+      var done = base + i + 1;
+      $('fill').style.width = Math.round(done/total*100) + '%';
+      $('status').textContent = 'Membuat halaman ' + done + ' dari ' + total + '…';
       await tick();
     }
   }
-  $('fill').style.width = '100%';
   return doc.output('blob');
 }
 
+function baseName(S){
+  var custom = safeName($('namaFile').value);
+  return custom || ('qr-' + S[0] + '_sd_' + S[S.length-1]);
+}
+
 $('btn').addEventListener('click', async function(){
-  var L = preview();
-  if(!L) return;
+  var r = preview();
+  if(!r) return;
+  var L = r.list, S = r.sns, pf = perFile(), parts = Math.ceil(L.length / pf);
   var btn = $('btn');
   btn.disabled = true;
   $('bar').style.display = 'block'; $('fill').style.width = '0';
   try{
-    var blob = await makePdf(L);
-    var name = 'qr-' + L[0] + '_sd_' + L[L.length-1].slice($('awal').value.trim().length, -$('akhir').value.trim().length) + '.pdf';
-    if(name.length > 120) name = 'qr-kode.pdf';
-    var custom = $('namaFile').value.trim().replace(/\.pdf$/i,'').replace(/[\\\/:*?"<>|\x00-\x1f]/g,'-').replace(/\s+/g,' ').trim();
-    if(custom) name = custom + '.pdf';
-    var dl = null;
-    try{ dl = (window.claude && claude.use) ? await claude.use('downloads') : null; }catch(_){ dl = null; }
-    if(dl){
-      $('status').textContent = 'PDF siap. Konfirmasi penyimpanan…';
-      try{
-        await dl.save({filename:name, data:blob});
-        $('status').textContent = 'Tersimpan: ' + L.length + ' halaman.';
-      }catch(err){
-        $('status').textContent = err && err.code === 'declined' ? 'Penyimpanan dibatalkan.' : 'Gagal menyimpan: ' + (err && err.message || 'tidak diketahui');
-      }
+    var custom = safeName($('namaFile').value), files = [];
+    var pw = String(parts).length;
+    for(var p = 0; p < parts; p++){
+      var a = p * pf, subL = L.slice(a, a + pf), subS = S.slice(a, a + pf);
+      var blob = await makePdf(subL, a, L.length);
+      var name;
+      if(custom) name = custom + (parts > 1 ? '-bagian-' + padNum(p+1, pw) : '') + '.pdf';
+      else name = 'qr-' + (parts > 1 ? padNum(p+1, pw) + '-' : '') + subS[0] + '_sd_' + subS[subS.length-1] + '.pdf';
+      if(name.length > 120) name = 'qr-kode' + (parts > 1 ? '-' + padNum(p+1, pw) : '') + '.pdf';
+      files.push({name:name, blob:blob});
+    }
+    $('fill').style.width = '100%';
+    if(parts === 1){
+      $('status').textContent = 'PDF siap. Menyimpan…';
+      await saveBlob(files[0].blob, files[0].name);
+      $('status').textContent = 'Tersimpan: ' + L.length + ' halaman.';
+    }else if($('zipMode').value === 'zip'){
+      $('status').textContent = 'Membuat file ZIP…';
+      if(!window.JSZip) await loadScript(JSZIP_URL);
+      var zip = new JSZip();
+      files.forEach(function(f){ zip.file(f.name, f.blob); });
+      var zb = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}});
+      var zn = baseName(S) + '.zip';
+      if(zn.length > 120) zn = 'qr-kode.zip';
+      await saveBlob(zb, zn);
+      $('status').textContent = 'Tersimpan: ' + L.length + ' QR dalam ' + parts + ' file PDF (ZIP).';
     }else{
-      var u = URL.createObjectURL(blob), el = document.createElement('a'); el.href = u; el.download = name; document.body.appendChild(el); el.click(); el.remove(); setTimeout(function(){URL.revokeObjectURL(u)}, 4000); $('status').textContent = 'PDF diunduh: ' + L.length + ' halaman.';
+      for(var k = 0; k < files.length; k++){
+        $('status').textContent = 'Menyimpan file ' + (k+1) + ' dari ' + files.length + '…';
+        await saveBlob(files[k].blob, files[k].name);
+        await new Promise(function(res){ setTimeout(res, 500); });
+      }
+      $('status').textContent = 'Tersimpan: ' + L.length + ' QR dalam ' + parts + ' file PDF.';
     }
   }catch(err){
-    $('status').textContent = 'Terjadi kesalahan: ' + (err && err.message || err);
+    $('status').textContent = err && err.code === 'declined' ? 'Penyimpanan dibatalkan.' : 'Terjadi kesalahan: ' + (err && err.message || err);
   }finally{
     btn.disabled = false;
     setTimeout(function(){ $('bar').style.display = 'none'; }, 800);
+  }
+});
+
+/* ---------- salin & ekspor daftar ---------- */
+function rowsOf(r){
+  var awal = $('awal').value.trim(), akhir = $('akhir').value.trim();
+  var rows = [['No','Kode awal','Nomor seri','Kode akhir','Isi QR']];
+  r.sns.forEach(function(s, i){ rows.push([i+1, awal, s, akhir, awal + s + akhir]); });
+  return rows;
+}
+
+$('salin').addEventListener('click', async function(){
+  var r = preview(); if(!r) return;
+  var text = r.list.join('\n');
+  try{
+    await navigator.clipboard.writeText(text);
+  }catch(_){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); }catch(__){}
+    ta.remove();
+  }
+  $('status').textContent = 'Disalin: ' + r.list.length + ' baris (isi QR lengkap).';
+});
+
+$('xlsx').addEventListener('click', async function(){
+  var r = preview(); if(!r) return;
+  try{
+    $('status').textContent = 'Membuat file Excel…';
+    if(!window.XLSX) await loadScript(XLSX_URL);
+    var ws = XLSX.utils.aoa_to_sheet(rowsOf(r));
+    ws['!cols'] = [{wch:6},{wch:12},{wch:22},{wch:20},{wch:48}];
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Daftar QR');
+    var out = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+    var name = 'daftar-' + baseName(r.sns) + '.xlsx';
+    await saveBlob(new Blob([out], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), name);
+    $('status').textContent = 'Excel tersimpan: ' + r.sns.length + ' baris.';
+  }catch(err){
+    $('status').textContent = err && err.code === 'declined' ? 'Penyimpanan dibatalkan.' : 'Gagal membuat Excel: ' + (err && err.message || err);
+  }
+});
+
+$('csv').addEventListener('click', async function(){
+  var r = preview(); if(!r) return;
+  try{
+    var text = '\ufeff' + rowsOf(r).map(function(row){
+      return row.map(function(c){ return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+    }).join('\r\n');
+    var name = 'daftar-' + baseName(r.sns) + '.csv';
+    await saveBlob(new Blob([text], {type:'text/csv;charset=utf-8'}), name);
+    $('status').textContent = 'CSV tersimpan: ' + r.sns.length + ' baris.';
+  }catch(err){
+    $('status').textContent = err && err.code === 'declined' ? 'Penyimpanan dibatalkan.' : 'Gagal membuat CSV: ' + (err && err.message || err);
   }
 });
 })();
