@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.qr_anjay_gampang_git_main_edwarremfas.twa",
+        "sha256_cert_fingerprints": ["BD:C3:71:D4:10:CE:79:BE:3F:EF:E1:C2:E8:00:EE:4D:3F:5F:B6:B1:B7:B6:34:21:58:E1:52:98:8E:57:7B:5D"]
+      }
+    }]
